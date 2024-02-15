@@ -1,24 +1,50 @@
-import React from 'react'
-import './App.css'
+
+import "./App.css"
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+import useClipboard from "react-use-clipboard";
+import {useState} from "react";
+
+
 const App = () => {
-  return (
-    <>
-       <div className='container'>
-        <h2>Speech to Text Converter</h2>
-        <p>A React hook that convert speech from microphone to text and make it available  to your React components.</p>
+    const [textToCopy, setTextToCopy] = useState();
+    const [isCopied, setCopied] = useClipboard(textToCopy, {
+        successDuration:1000
+    });
 
-        <div className='main-content'>
 
-        </div>
+    const startListening = () => SpeechRecognition.startListening({ continuous: true, language: 'en-IN' });
+    const { transcript, browserSupportsSpeechRecognition } = useSpeechRecognition();
 
-        <div className='btn-style'>
-          <button>Copy to Clipboard</button>
-          <button>Start Listening</button>
-          <button>Stop Listening</button>
-        </div>
-       </div>
-    </>
-  )
-}
+    if (!browserSupportsSpeechRecognition) {
+        return null
+    }
 
-export default App
+    return (
+        <>
+            <div className="container">
+                <h2>Speech to Text Converter</h2>
+                <br/>
+                <p>A React hook that converts speech from the microphone to text and makes it available to your React
+                    components.</p>
+
+                <div className="main-content" onClick={() =>  setTextToCopy(transcript)}>
+                    {transcript}
+                </div>
+
+                <div className="btn-style">
+
+                    <button onClick={setCopied}>
+                        {isCopied ? 'Copied!' : 'Copy to clipboard'}
+                    </button>
+                    <button onClick={startListening}>Start Listening</button>
+                    <button onClick={SpeechRecognition.stopListening}>Stop Listening</button>
+
+                </div>
+
+            </div>
+
+        </>
+    );
+};
+
+export default App;
